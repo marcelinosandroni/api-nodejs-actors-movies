@@ -12,6 +12,7 @@ import {
 
 interface Server {
   app: Express
+  init: (msg: string) => Promise<void>
 }
 
 type Constructable<T> = new (...args: any[]) => T
@@ -32,7 +33,7 @@ export class SetupServer implements Server {
 
   constructor(public port = 3000) {}
 
-  async init(msg: string) {
+  public async init(msg: string) {
     this.app = express()
     this.addMidleWares()
     this.addController([
@@ -44,12 +45,12 @@ export class SetupServer implements Server {
     this.listen(msg)
   }
 
-  addMidleWares() {
+  protected addMidleWares() {
     this.app.use(cors())
     this.app.use(express.json())
   }
 
-  listen(msg: string) {
+  public listen(msg: string) {
     const server = this.app.listen(this.port, () => {
       if (!server) {
         console.log('Erro iniciando o server!'.red)
@@ -59,7 +60,7 @@ export class SetupServer implements Server {
     })
   }
 
-  addController(
+  protected addController(
     controllerList: OneOrTwoList<
       Constructable<Controller>,
       Constructable<Model>
@@ -73,7 +74,7 @@ export class SetupServer implements Server {
     })
   }
 
-  buildRoutes(controller: Controller) {
+  protected buildRoutes(controller: Controller) {
     const router = Router()
     const path = Reflect.getMetadata('path', controller)
     const routes = Reflect.getMetadata('routes', controller)
@@ -86,6 +87,4 @@ export class SetupServer implements Server {
     console.log(`Settings route: ${path}`.blue)
     this.app.use(path, router)
   }
-
-  startDatabase() {}
 }

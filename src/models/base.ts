@@ -1,6 +1,5 @@
 import {Knex} from 'knex'
 import {connection} from '../database/connection'
-const log = connection('log')
 
 export interface Model {
   db: () => Knex.QueryBuilder
